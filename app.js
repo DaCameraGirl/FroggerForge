@@ -66,11 +66,13 @@ class FroggerForge {
     this.status = "Ready";
     this.started = false;
     this.homes = new Set();
+    this.safeTimer = 0;
     this.spawnLevel();
   }
 
   spawnLevel() {
-    this.time = Math.max(24, 38 - this.level * 2);
+    this.timeLimit = Math.max(36, 58 - this.level * 2);
+    this.time = this.timeLimit;
     this.frog = {
       col: 5,
       row: 12,
@@ -80,21 +82,20 @@ class FroggerForge {
       ride: 0,
     };
     this.lanes = [
-      { row: 1, type: "river", dir: 1, speed: 76 + this.level * 8, items: this.makeLane(1, [120, 170], colors.log, 0) },
-      { row: 2, type: "river", dir: -1, speed: 92 + this.level * 8, items: this.makeLane(2, [90, 120], colors.turtle, 42) },
-      { row: 3, type: "river", dir: 1, speed: 65 + this.level * 7, items: this.makeLane(3, [160, 210], colors.log, 15) },
-      { row: 4, type: "river", dir: -1, speed: 105 + this.level * 8, items: this.makeLane(4, [100, 150], colors.turtle, 8) },
-      { row: 6, type: "road", dir: -1, speed: 120 + this.level * 10, items: this.makeLane(6, [58, 86], colors.car, 0) },
-      { row: 7, type: "road", dir: 1, speed: 94 + this.level * 9, items: this.makeLane(7, [96, 132], colors.truck, 34) },
-      { row: 8, type: "road", dir: -1, speed: 145 + this.level * 10, items: this.makeLane(8, [54, 76], colors.pink, 12) },
-      { row: 9, type: "road", dir: 1, speed: 112 + this.level * 9, items: this.makeLane(9, [128, 170], colors.car, 45) },
-      { row: 10, type: "road", dir: -1, speed: 82 + this.level * 8, items: this.makeLane(10, [170, 220], colors.truck, 20) },
+      { row: 1, type: "river", dir: 1, speed: 50 + this.level * 5, gap: 270, items: this.makeLane(1, [185, 230], colors.log, 0, 270) },
+      { row: 2, type: "river", dir: -1, speed: 62 + this.level * 5, gap: 250, items: this.makeLane(2, [150, 190], colors.turtle, 80, 250) },
+      { row: 3, type: "river", dir: 1, speed: 45 + this.level * 5, gap: 290, items: this.makeLane(3, [210, 260], colors.log, 30, 290) },
+      { row: 4, type: "river", dir: -1, speed: 72 + this.level * 6, gap: 260, items: this.makeLane(4, [155, 205], colors.turtle, 20, 260) },
+      { row: 6, type: "road", dir: -1, speed: 78 + this.level * 7, gap: 310, items: this.makeLane(6, [50, 68], colors.car, 0, 310) },
+      { row: 7, type: "road", dir: 1, speed: 66 + this.level * 6, gap: 340, items: this.makeLane(7, [88, 118], colors.truck, 72, 340) },
+      { row: 8, type: "road", dir: -1, speed: 88 + this.level * 7, gap: 330, items: this.makeLane(8, [48, 64], colors.pink, 110, 330) },
+      { row: 9, type: "road", dir: 1, speed: 74 + this.level * 6, gap: 350, items: this.makeLane(9, [105, 145], colors.car, 45, 350) },
+      { row: 10, type: "road", dir: -1, speed: 58 + this.level * 6, gap: 370, items: this.makeLane(10, [145, 185], colors.truck, 140, 370) },
     ];
   }
 
-  makeLane(row, widths, color, offset) {
+  makeLane(row, widths, color, offset, gap) {
     const items = [];
-    const gap = 220;
     for (let x = -offset; x < canvas.width + gap; x += gap) {
       const w = widths[Math.floor(Math.random() * widths.length)];
       items.push({ x, y: row * cell + 10, w, h: cell - 20, color });
@@ -115,19 +116,21 @@ class FroggerForge {
     this.frog.row = clamp(this.frog.row + dy, 0, rows - 1);
     this.frog.x = this.frog.col * cell + cell / 2;
     this.frog.y = this.frog.row * cell + cell / 2;
+    this.safeTimer = 0.08;
     if (dy < 0) this.score += 10;
   }
 
   update(dt) {
     if (!this.started || this.status === "Game Over") return;
+    this.safeTimer = Math.max(0, this.safeTimer - dt);
     this.time -= dt;
     if (this.time <= 0) this.killFrog();
     this.frog.ride = 0;
     this.lanes.forEach((lane) => {
       lane.items.forEach((item) => {
         item.x += lane.dir * lane.speed * dt;
-        if (lane.dir > 0 && item.x > canvas.width + 40) item.x = -item.w - 160;
-        if (lane.dir < 0 && item.x + item.w < -40) item.x = canvas.width + 160;
+        if (lane.dir > 0 && item.x > canvas.width + 40) item.x = -item.w - lane.gap * 0.62;
+        if (lane.dir < 0 && item.x + item.w < -40) item.x = canvas.width + lane.gap * 0.62;
       });
     });
     this.resolveLane();
@@ -139,19 +142,30 @@ class FroggerForge {
     if (!lane) return;
     const frogRect = this.frogRect();
     if (lane.type === "road") {
-      if (lane.items.some((item) => rectsOverlap(frogRect, item))) this.killFrog();
+      if (this.safeTimer <= 0 && lane.items.some((item) => rectsOverlap(frogRect, this.hitbox(item, 0.72)))) this.killFrog();
       return;
     }
 
-    const platform = lane.items.find((item) => rectsOverlap(frogRect, item));
+    const platform = lane.items.find((item) => rectsOverlap(frogRect, this.hitbox(item, 1.08)));
     if (!platform) {
-      this.killFrog();
+      if (this.safeTimer <= 0) this.killFrog();
       return;
     }
     this.frog.ride = lane.dir * lane.speed;
     this.frog.x += this.frog.ride / 60;
     this.frog.col = clamp(Math.floor(this.frog.x / cell), 0, cols - 1);
     if (this.frog.x < 0 || this.frog.x > canvas.width) this.killFrog();
+  }
+
+  hitbox(item, scale) {
+    const w = item.w * scale;
+    const h = item.h * scale;
+    return {
+      x: item.x + (item.w - w) / 2,
+      y: item.y + (item.h - h) / 2,
+      w,
+      h,
+    };
   }
 
   checkHome() {
@@ -192,6 +206,7 @@ class FroggerForge {
     this.frog.row = 12;
     this.frog.x = 5 * cell + cell / 2;
     this.frog.y = 12 * cell + cell / 2;
+    this.safeTimer = 0.7;
   }
 
   frogRect() {
@@ -276,7 +291,7 @@ class FroggerForge {
 
   drawTimer() {
     ctx.fillStyle = colors.yellow;
-    ctx.fillRect(18, canvas.height - 22, clamp(this.time / Math.max(24, 38 - this.level * 2), 0, 1) * 210, 8);
+    ctx.fillRect(18, canvas.height - 22, clamp(this.time / this.timeLimit, 0, 1) * 210, 8);
   }
 
   drawOverlay() {
@@ -328,8 +343,8 @@ function pointerMove(event) {
   const row = clamp(Math.floor(y / cell), 0, rows - 1);
   const dx = col - game.frog.col;
   const dy = row - game.frog.row;
-  if (Math.abs(dx) > Math.abs(dy)) game.move(Math.sign(dx), 0);
-  else if (dy !== 0) game.move(0, Math.sign(dy));
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) === 1) game.move(Math.sign(dx), 0);
+  else if (Math.abs(dy) === 1) game.move(0, Math.sign(dy));
   else game.start();
 }
 
