@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FroggerForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="kicker">Standalone Arcade Repo</p>
+      <h1>FroggerForge</h1>
+      <p>Cross traffic, ride river platforms, fill every home, and push the level speed higher.</p>
+    </section>
+
+    <section class="cabinet" aria-label="FroggerForge arcade cabinet">
+      <div class="marquee">
+        <strong>FroggerForge</strong>
+        <span id="state">Ready</span>
+      </div>
+      <canvas id="game" width="720" height="780" aria-label="Playable Frogger-style arcade game"></canvas>
+      <div class="controls">
+        <span>Arrow keys / WASD move</span>
+        <span>Click or tap adjacent lanes</span>
+        <span>R restarts</span>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Game stats">
+      <div><span>Score</span><strong id="score">0</strong></div>
+      <div><span>Lives</span><strong id="lives">3</strong></div>
+      <div><span>Level</span><strong id="level">1</strong></div>
+      <div><span>Best</span><strong id="best">0</strong></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

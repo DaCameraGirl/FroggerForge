@@ -1,0 +1,148 @@
+:root {
+  --bg: #07110d;
+  --panel: #101a17;
+  --line: #24463a;
+  --ink: #f0fff8;
+  --muted: #9eb7ac;
+  --green: #82f96d;
+  --blue: #35c8ff;
+  --yellow: #ffd95a;
+  --pink: #ff5fa2;
+  --red: #ff5d5d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(53, 200, 255, 0.18), transparent 420px),
+    linear-gradient(180deg, rgba(130, 249, 109, 0.08), transparent 360px),
+    var(--bg);
+  font-family: "Space Mono", Consolas, monospace;
+}
+
+.shell {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 36px 20px 56px;
+}
+
+.hero {
+  margin-bottom: 24px;
+}
+
+.kicker {
+  margin: 0 0 12px;
+  color: var(--yellow);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: white;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(1.7rem, 7vw, 4.3rem);
+  line-height: 1.35;
+  text-shadow: 0 0 20px rgba(130, 249, 109, 0.42);
+}
+
+.hero p:last-child {
+  width: min(720px, 100%);
+  margin: 18px 0 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.cabinet {
+  overflow: hidden;
+  border: 2px solid rgba(130, 249, 109, 0.55);
+  background: #020504;
+  box-shadow: 0 0 36px rgba(130, 249, 109, 0.18);
+}
+
+.marquee,
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--panel);
+}
+
+.marquee {
+  border-bottom: 1px solid var(--line);
+}
+
+.marquee strong {
+  color: var(--green);
+  font-family: "Press Start 2P", monospace;
+  font-size: 0.75rem;
+}
+
+.marquee span {
+  color: var(--yellow);
+  font-size: 0.8rem;
+}
+
+#game {
+  display: block;
+  width: 100%;
+  aspect-ratio: 12 / 13;
+  background: #030706;
+  touch-action: none;
+}
+
+.controls {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.panel div {
+  min-height: 82px;
+  border: 1px solid var(--line);
+  padding: 14px;
+  background: var(--panel);
+}
+
+.panel span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.panel strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--green);
+  font-family: "Press Start 2P", monospace;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 680px) {
+  .shell {
+    padding: 24px 12px 40px;
+  }
+
+  .panel {
+    grid-template-columns: 1fr 1fr;
+  }
+}
